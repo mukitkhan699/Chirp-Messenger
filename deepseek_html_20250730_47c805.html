@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Messenger</title>
+    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="user-profile">
+                <div class="user-avatar" id="user-avatar">Y</div>
+                <div class="user-info">
+                    <div class="user-name" id="user-name">You</div>
+                    <div class="user-status">
+                        <span class="status-indicator" id="status-indicator"></span>
+                        <span id="status-text">Offline</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="peer-id-container">
+                <div class="peer-id-label">Your Peer ID</div>
+                <div class="peer-id-value">
+                    <div class="peer-id" id="peer-id"></div>
+                    <div class="id-actions">
+                        <button class="icon-button" id="copy-id" title="Copy ID">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                        </button>
+                        <button class="icon-button" id="new-id" title="Generate New ID">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <path d="M8 10h1"></path>
+                                <path d="M8 14h1"></path>
+                                <path d="M12 10h1"></path>
+                                <path d="M12 14h1"></path>
+                                <path d="M16 10h1"></path>
+                                <path d="M16 14h1"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="connection-form">
+                <div class="form-group">
+                    <label class="form-label" for="remote-peer-id">Connect to Peer</label>
+                    <input type="text" id="remote-peer-id" class="form-input" placeholder="Enter peer ID">
+                </div>
+                <button id="connect" class="button">Connect</button>
+            </div>
+
+            <div class="status-container">
+                <div class="status-message" id="status">Initializing peer connection...</div>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="chat-container">
+            <div class="chat-header">
+                <div>
+                    <div class="chat-peer-name" id="chat-peer-name">Not connected</div>
+                    <div class="chat-peer-status" id="chat-peer-status">Offline</div>
+                </div>
+                <div class="chat-actions">
+                    <button class="icon-button" id="start-call" title="Start call" disabled>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chat">
+                <div class="message-system">Welcome to Modern Messenger</div>
+            </div>
+
+            <div class="message-input-container">
+                <div class="message-input-wrapper">
+                    <textarea id="message" class="message-input" placeholder="Type a message" rows="1" disabled></textarea>
+                    <button id="send" class="send-button" disabled>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call UI (hidden by default) -->
+        <div class="call-container" id="call-container">
+            <div class="call-peer-info">
+                <div class="call-avatar" id="call-avatar">P</div>
+                <div class="call-peer-name" id="call-peer-name">Peer</div>
+                <div class="call-status" id="call-status">Calling...</div>
+                <div class="call-timer" id="call-timer">00:00</div>
+            </div>
+            <div class="call-controls">
+                <button class="call-button call-button-secondary" id="mute-call" title="Mute">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                        <line x1="12" y1="19" x2="12" y2="23"></line>
+                        <line x1="8" y1="23" x2="16" y2="23"></line>
+                    </svg>
+                </button>
+                <button class="call-button call-button-danger pulse" id="end-call" title="End call">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.34a19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91"></path>
+                        <line x1="23" y1="1" x2="1" y2="23"></line>
+                    </svg>
+                </button>
+            </div>
+            <audio id="remote-audio" autoplay></audio>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
