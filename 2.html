@@ -2,40 +2,44 @@
 <html>
 <body>
 
-<button onclick="startListening()">Start Listening</button>
+<button onclick="start()">Start Listening</button>
 
 <h3>Received:</h3>
 <div id="output"></div>
 
 <script>
 
-const AudioContext = window.AudioContext || window.webkitAudioContext;
-const ctx = new AudioContext();
+const ctx = new (window.AudioContext || window.webkitAudioContext)();
 
 let analyser;
 let data;
 let listening = false;
-let lastTime = 0;
+let lastFreq = 0;
 
-async function startListening(){
+async function start(){
 
-const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+const stream = await navigator.mediaDevices.getUserMedia({
+audio: {
+echoCancellation: true,
+noiseSuppression: true,
+autoGainControl: true
+}
+});
 
 const source = ctx.createMediaStreamSource(stream);
 
 analyser = ctx.createAnalyser();
-
 analyser.fftSize = 2048;
 
 source.connect(analyser);
 
 data = new Uint8Array(analyser.frequencyBinCount);
 
-setInterval(readSound, 300);
+setInterval(read, 300);
 
 }
 
-function readSound(){
+function read(){
 
 analyser.getByteFrequencyData(data);
 
@@ -53,18 +57,18 @@ index = i;
 
 }
 
-if(max < 180) return;
+if(max < 200) return;
 
 let freq = index * ctx.sampleRate / analyser.fftSize;
 
-let now = Date.now();
 
-if(now - lastTime < 250) return;
+// ignore same frequency repeat
+if(Math.abs(freq - lastFreq) < 20) return;
 
-lastTime = now;
+lastFreq = freq;
 
 
-// START tone
+// START
 if(freq > 390 && freq < 410){
 
 listening = true;
@@ -74,7 +78,7 @@ return;
 }
 
 
-// END tone
+// END
 if(freq > 490 && freq < 510){
 
 listening = false;
@@ -91,112 +95,10 @@ let charCode = Math.round((freq - 600) / 10);
 
 if(charCode >= 32 && charCode <= 126){
 
-document.getElementById("output").innerText += String.fromCharCode(charCode);
+document.getElementById("output").innerText +=
+String.fromCharCode(charCode);
 
 }
-
-}
-
-</script>
-
-</body>
-</html>for(let i=0;i<data.length;i++){
-
-if(data[i]>max){
-
-max = data[i];
-index = i;
-
-}
-
-}
-
-if(max<150)return;
-
-let freq = index * ctx.sampleRate / analyser.fftSize;
-
-if(freq>390 && freq<410){
-
-listening=true;
-return;
-
-}
-
-if(freq>490 && freq<510){
-
-listening=false;
-return;
-
-}
-
-if(!listening)return;
-
-let code = Math.round((freq-600)/10);
-
-let char = String.fromCharCode(code);
-
-if(char!==lastChar){
-
-document.getElementById("output").innerText+=char;
-
-lastChar=char;
-
-}
-
-},200);
-
-}
-
-</script>
-
-</body>
-</html>
-setInterval(()=>{
-
-analyser.getByteFrequencyData(dataArray);
-
-let max = 0;
-let index = 0;
-
-for(let i=0;i<dataArray.length;i++){
-
-if(dataArray[i] > max){
-
-max = dataArray[i];
-index = i;
-
-}
-
-}
-
-if(max > 150){ // ignore noise
-
-let freq = index * ctx.sampleRate / analyser.fftSize;
-
-let charCode = Math.round((freq - 500) / 10);
-
-if(charCode >= 32 && charCode <= 126){
-
-document.getElementById("output").innerText += String.fromCharCode(charCode);
-
-}
-
-}
-
-}, 250);
-
-}
-
-</script>
-
-</body>
-</html>if(charCode > 0 && charCode < 128){
-
-document.getElementById("output").innerText += String.fromCharCode(charCode);
-
-}
-
-}, 200);
 
 }
 
