@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<button onclick="start()">Start Listening</button>
+
+<p id="output"></p>
+
+<script>
+
+let ctx = new AudioContext();
+
+async function start(){
+
+const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+
+const source = ctx.createMediaStreamSource(stream);
+
+const analyser = ctx.createAnalyser();
+
+source.connect(analyser);
+
+const data = new Float32Array(analyser.frequencyBinCount);
+
+setInterval(()=>{
+
+analyser.getFloatFrequencyData(data);
+
+let max = Math.max(...data);
+
+let index = data.indexOf(max);
+
+let freq = index * ctx.sampleRate / analyser.fftSize;
+
+let charCode = Math.round((freq - 500)/10);
+
+if(charCode > 0 && charCode < 128){
+
+document.getElementById("output").innerText += String.fromCharCode(charCode);
+
+}
+
+}, 200);
+
+}
+
+</script>
+
+</body>
+</html>
