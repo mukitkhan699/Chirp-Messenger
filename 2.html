@@ -2,32 +2,40 @@
 <html>
 <body>
 
-<button onclick="start()">Start Listening</button>
+<button onclick="startListening()">Start Listening</button>
 
-<h3 id="output"></h3>
+<h3>Received:</h3>
+<div id="output"></div>
 
 <script>
 
-const ctx = new (window.AudioContext || window.webkitAudioContext)();
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+const ctx = new AudioContext();
 
+let analyser;
+let data;
 let listening = false;
-let lastChar = "";
+let lastTime = 0;
 
-async function start(){
+async function startListening(){
 
 const stream = await navigator.mediaDevices.getUserMedia({audio:true});
 
 const source = ctx.createMediaStreamSource(stream);
 
-const analyser = ctx.createAnalyser();
+analyser = ctx.createAnalyser();
 
 analyser.fftSize = 2048;
 
 source.connect(analyser);
 
-const data = new Uint8Array(analyser.frequencyBinCount);
+data = new Uint8Array(analyser.frequencyBinCount);
 
-setInterval(()=>{
+setInterval(readSound, 300);
+
+}
+
+function readSound(){
 
 analyser.getByteFrequencyData(data);
 
@@ -35,6 +43,64 @@ let max = 0;
 let index = 0;
 
 for(let i=0;i<data.length;i++){
+
+if(data[i] > max){
+
+max = data[i];
+index = i;
+
+}
+
+}
+
+if(max < 180) return;
+
+let freq = index * ctx.sampleRate / analyser.fftSize;
+
+let now = Date.now();
+
+if(now - lastTime < 250) return;
+
+lastTime = now;
+
+
+// START tone
+if(freq > 390 && freq < 410){
+
+listening = true;
+
+return;
+
+}
+
+
+// END tone
+if(freq > 490 && freq < 510){
+
+listening = false;
+
+return;
+
+}
+
+
+if(!listening) return;
+
+
+let charCode = Math.round((freq - 600) / 10);
+
+if(charCode >= 32 && charCode <= 126){
+
+document.getElementById("output").innerText += String.fromCharCode(charCode);
+
+}
+
+}
+
+</script>
+
+</body>
+</html>for(let i=0;i<data.length;i++){
 
 if(data[i]>max){
 
