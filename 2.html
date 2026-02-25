@@ -2,39 +2,79 @@
 <html>
 <body>
 
-<button onclick="start()">Start Listening</button>
+<button onclick="startListening()">Start Listening</button>
 
+<h3>Received:</h3>
 <p id="output"></p>
 
 <script>
 
-let ctx = new AudioContext();
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+const ctx = new AudioContext();
 
-async function start(){
+let analyser;
+let dataArray;
 
-const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+async function startListening(){
+
+const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
 const source = ctx.createMediaStreamSource(stream);
 
-const analyser = ctx.createAnalyser();
+analyser = ctx.createAnalyser();
+
+analyser.fftSize = 2048;
 
 source.connect(analyser);
 
-const data = new Float32Array(analyser.frequencyBinCount);
+dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+listen();
+
+}
+
+function listen(){
 
 setInterval(()=>{
 
-analyser.getFloatFrequencyData(data);
+analyser.getByteFrequencyData(dataArray);
 
-let max = Math.max(...data);
+let max = 0;
+let index = 0;
 
-let index = data.indexOf(max);
+for(let i=0;i<dataArray.length;i++){
+
+if(dataArray[i] > max){
+
+max = dataArray[i];
+index = i;
+
+}
+
+}
+
+if(max > 150){ // ignore noise
 
 let freq = index * ctx.sampleRate / analyser.fftSize;
 
-let charCode = Math.round((freq - 500)/10);
+let charCode = Math.round((freq - 500) / 10);
 
-if(charCode > 0 && charCode < 128){
+if(charCode >= 32 && charCode <= 126){
+
+document.getElementById("output").innerText += String.fromCharCode(charCode);
+
+}
+
+}
+
+}, 250);
+
+}
+
+</script>
+
+</body>
+</html>if(charCode > 0 && charCode < 128){
 
 document.getElementById("output").innerText += String.fromCharCode(charCode);
 
