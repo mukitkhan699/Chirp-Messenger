@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<input id="text" placeholder="Enter text">
+<button onclick="send()">Send via Sound</button>
+
+<script>
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+const ctx = new AudioContext();
+
+function playTone(freq, duration) {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.frequency.value = freq;
+    osc.type = "sine";
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+
+    gain.gain.setValueAtTime(1, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+
+    osc.stop(ctx.currentTime + duration);
+}
+
+async function send() {
+
+    const text = document.getElementById("text").value;
+
+    for (let char of text) {
+
+        const freq = 500 + char.charCodeAt(0) * 10;
+
+        playTone(freq, 0.2);
+
+        await new Promise(r => setTimeout(r, 250));
+    }
+}
+</script>
+
+</body>
+</html>
