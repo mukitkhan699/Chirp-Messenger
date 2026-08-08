@@ -2,6 +2,7 @@
 let peer;
 let conn;
 let call;
+let peerId;
 
 // Media stream variables
 let localStream;
@@ -48,8 +49,23 @@ const iceServers = [
     }
 ];
 
+function peerId_asker() {
+  while(true) {
+    peerId = prompt("Enter your username");
+    if (peerId === "mukit123") {
+      alert("This username is preserved by the owner. So try another.");
+    }
+    else if(!peerId) {
+      alert("Enter a valid username.")
+    }
+    else {
+      break;
+    }
+  }
+}
+
 // Initialize PeerJS
-function initializePeer(peerId = null) {
+function initializePeer(peerId) {
     // Destroy previous peer if exists
     if (peer) {
         peer.destroy();
@@ -438,8 +454,9 @@ copyIdButton.addEventListener('click', () => {
 });
 
 newIdButton.addEventListener('click', () => {
-    initializePeer();
-    addSystemMessage("Generated new peer ID");
+    peerId_asker();
+    initializePeer(peerId);
+    addSystemMessage("Generated new username");
 });
 
 connectButton.addEventListener('click', () => {
@@ -498,4 +515,5 @@ function sendMessage() {
 }
 
 // Initialize the app
-initializePeer();
+peerId_asker();
+initializePeer(peerId);
