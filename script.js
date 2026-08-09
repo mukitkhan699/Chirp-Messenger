@@ -320,6 +320,8 @@ function endCurrentCall() {
     }
     
     // Hide call UI
+    callStatusElement.textContent = 'Call ended';
+    updateStatus("Call ended");
     callContainer.classList.remove('active');
     endCallButton.classList.remove('pulse');
     
