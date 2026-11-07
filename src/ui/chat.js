@@ -17,6 +17,7 @@ import {
   truncate,
 } from '../core/utils.js';
 import { QUICK_REACTIONS } from './emoji.js';
+import { openEmojiPicker } from './emoji-picker.js';
 import { bridge } from './bridge.js';
 
 const els = {
@@ -66,18 +67,27 @@ export function renderBody(text = '') {
 function statusTick(message) {
   if (message.direction !== 'out') return null;
   const map = {
-    sending: { icon: 'clock', cls: '' },
-    sent: { icon: 'check', cls: '' },
-    delivered: { icon: 'checkDouble', cls: '' },
-    read: { icon: 'checkDouble', cls: 'is-read' },
-    failed: { icon: 'x', cls: 'is-failed' },
+    sending: { icon: 'clock', cls: '', label: 'Sending…' },
+    sent: { icon: 'check', cls: '', label: 'Sent' },
+    delivered: { icon: 'checkDouble', cls: '', label: 'Delivered' },
+    read: { icon: 'checkDouble', cls: 'is-read', label: 'Seen' },
+    failed: { icon: 'x', cls: 'is-failed', label: 'Failed to send' },
   };
   const status = map[message.status] || map.sent;
   return h(
     'span',
-    { class: `tick ${status.cls}`, title: message.status },
+    { class: `tick ${status.cls}`, title: status.label, 'aria-label': status.label },
     iconSvg(status.icon, { size: 13 }),
   );
+}
+
+function scrollToMessage(messageId) {
+  const el = qs(`[data-message-id="${messageId}"]`);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.add('message-highlight');
+    setTimeout(() => el.classList.remove('message-highlight'), 1800);
+  }
 }
 
 function replyPreview(message) {
@@ -86,7 +96,22 @@ function replyPreview(message) {
   const author = target.direction === 'out' ? 'You' : store.get(`peers.${target.convId}.profile.name`) || 'Peer';
   return h(
     'div',
-    { class: 'bubble-reply' },
+    {
+      class: 'bubble-reply',
+      role: 'button',
+      tabindex: '0',
+      title: 'Jump to message',
+      onClick: (event) => {
+        event.stopPropagation();
+        scrollToMessage(message.replyTo);
+      },
+      onKeydown: (event) => {
+        if (event.key === 'Enter') {
+          event.stopPropagation();
+          scrollToMessage(message.replyTo);
+        }
+      },
+    },
     h('span', { class: 'reply-author' }, author),
     h('span', { class: 'reply-text' }, target.deleted ? 'Message deleted' : truncate(target.body || 'Attachment', 90)),
   );
@@ -114,8 +139,12 @@ function attachmentBlock(message) {
         class: 'attachment',
         href: attachment.dataUrl || '#',
         download: attachment.name || 'file',
+        title: 'Save file to device storage',
         onClick: (event) => {
-          if (!attachment.dataUrl) event.preventDefault();
+          if (!attachment.dataUrl) {
+            event.preventDefault();
+            actions.toast('File is still transferring…', { type: 'info' });
+          }
         },
       },
       h('span', { class: 'attachment-icon' }, iconSvg('file', { size: 18 })),
@@ -211,6 +240,20 @@ function openReactionPicker(anchor, message) {
         },
         emoji,
       ),
+    ),
+    h(
+      'button',
+      {
+        class: 'reaction-option add-reaction-btn',
+        type: 'button',
+        title: 'More emoji',
+        'aria-label': 'More reactions',
+        onClick: (event) => {
+          closePopover();
+          openEmojiPicker(anchor, (emoji) => onReaction(message, emoji));
+        },
+      },
+      iconSvg('plus', { size: 16 }),
     ),
   );
   openPopover(anchor, bar, { align: 'end' });
@@ -658,7 +701,7 @@ export function mountChat(root, { onReply } = {}) {
         class: 'icon-btn mobile-only',
         title: 'Back to conversations',
         'aria-label': 'Back to conversations',
-        onClick: () => store.set('ui.sidebarOpen', false),
+        onClick: () => store.set('ui.sidebarOpen', true),
       },
       iconSvg('arrowLeft', { size: 18 }),
     ),

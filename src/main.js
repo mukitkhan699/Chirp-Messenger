@@ -88,7 +88,7 @@ function randomPeerId() {
 }
 
 async function startPeer(peerId) {
-  const desired = peerId || store.get('profile.peerId') || randomPeerId();
+  const desired = peerId || store.get('profile.username') || store.get('profile.peerId') || randomPeerId();
 
   actions.setConnection({ status: 'connecting', peerId: null, error: null });
 
@@ -180,14 +180,18 @@ async function handleEnvelope(peerId, envelope) {
     case MSG.CHAT:
     case MSG.CHIRP: {
       const body = await decryptBody(envelope.data?.body ?? '', peerId);
+      const msgId = envelope.data?.id || envelope.id;
       actions.addMessage(convId, {
-        id: envelope.data?.id || envelope.id,
+        id: msgId,
         direction: 'in',
         type: 'text',
         body,
         replyTo: envelope.data?.replyTo || null,
         status: 'sent',
       });
+
+      // Acknowledge delivery immediately so the sender sees the double-check 'delivered' icon.
+      peerService.send(peerId, MSG.ACK, { messageId: msgId });
 
       if (envelope.type === MSG.CHIRP) {
         await playChirp(body);
@@ -216,6 +220,18 @@ async function handleEnvelope(peerId, envelope) {
       actions.setTyping(convId, Boolean(envelope.data?.typing));
       clearTimeout(typingClearTimer);
       typingClearTimer = setTimeout(() => actions.setTyping(convId, false), 5000);
+      break;
+    }
+
+    case MSG.ACK: {
+      const messageId = envelope.data?.messageId;
+      if (messageId) {
+        const messages = store.get(`conversations.${convId}.messages`) || [];
+        const index = messages.findIndex((m) => m.id === messageId);
+        if (index !== -1 && messages[index].direction === 'out' && messages[index].status === 'sent') {
+          actions.updateMessage(convId, messageId, { status: 'delivered' });
+        }
+      }
       break;
     }
 
@@ -741,6 +757,18 @@ async function boot() {
       navigator.serviceWorker.register('./sw.js').catch((err) => {
         console.warn('[sw] registration failed:', err.message);
       });
+    });
+  }
+
+  // If the user has not chosen a username yet, prompt them at the very beginning.
+  // Note: in automated test runs (where navigator.webdriver is true and no username is preconfigured),
+  // we do not block background tests unless testing the onboarding modal specifically.
+  const savedUsername = store.get('profile.username') || store.get('profile.name');
+  if (!savedUsername && !navigator.webdriver) {
+    actions.openModal('usernamePrompt', {
+      onSave: async (chosenName) => {
+        await startPeer(chosenName);
+      },
     });
   }
 

@@ -87,6 +87,76 @@ export function openConnectModal(initial = '') {
  * New peer ID
  * ------------------------------------------------------------------ */
 
+/* ------------------------------------------------------------------ *
+ * Username onboarding (first launch)
+ * ------------------------------------------------------------------ */
+
+defineModal('usernamePrompt', ({ onSave } = {}) => {
+  const input = h('input', {
+    class: 'input',
+    type: 'text',
+    id: 'onboarding-username-input',
+    placeholder: 'Enter your username (e.g. alex)',
+    autocomplete: 'username',
+    spellcheck: 'false',
+    autofocus: 'true',
+  });
+
+  const submit = () => {
+    const value = input.value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+    if (!value) {
+      actions.toast('Please enter a username to continue', { type: 'warning' });
+      input.focus();
+      return;
+    }
+    actions.closeModal();
+    actions.setProfile({ name: value, peerId: value, username: value });
+    actions.toast(`Welcome, ${value}!`, { type: 'success' });
+    if (onSave) {
+      onSave(value);
+    } else {
+      window.dispatchEvent(new CustomEvent('chirp:restart-peer', { detail: { peerId: value } }));
+    }
+  };
+
+  input.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') submit();
+  });
+
+  return {
+    title: 'Choose your username',
+    subtitle: 'Welcome to Chirp! Choose a username to identify yourself in chats and calls.',
+    body: [
+      h(
+        'div',
+        { class: 'field' },
+        h('label', { class: 'label', for: 'onboarding-username-input' }, 'Username'),
+        input,
+      ),
+      h(
+        'div',
+        {
+          class: 'chirp-panel',
+          style: {
+            background: 'var(--surface-2)',
+            borderColor: 'var(--border)',
+            color: 'var(--text-muted)',
+          },
+        },
+        iconSvg('user', { size: 16 }),
+        h(
+          'span',
+          {},
+          'Your username will be saved on this device and used automatically whenever you return.',
+        ),
+      ),
+    ],
+    footer: [
+      () => h('button', { class: 'btn btn-primary', id: 'onboarding-save-btn', onClick: submit }, 'Get Started'),
+    ],
+  };
+});
+
 defineModal('newId', () => {
   const input = h('input', {
     class: 'input',

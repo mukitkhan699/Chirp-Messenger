@@ -12,7 +12,7 @@ import { openEmojiPicker } from './emoji-picker.js';
 import { bridge } from './bridge.js';
 import { debounce, formatBytes, readFileAsBase64 } from '../core/utils.js';
 
-const MAX_FILE_BYTES = 12 * 1024 * 1024;
+import { MAX_FILE_BYTES } from '../services/files.js';
 
 const els = {
   wrap: null,

@@ -33,8 +33,8 @@ export const MSG = {
 /** Maximum size (bytes) of a single data-channel frame we will send. */
 export const CHUNK_SIZE = 48 * 1024;
 
-/** Maximum size of a whole file we allow to transfer over the data channel. */
-export const MAX_FILE_BYTES = 12 * 1024 * 1024;
+/** Maximum size of a whole file we allow to transfer over the data channel (up to 64MB). */
+export const MAX_FILE_BYTES = 64 * 1024 * 1024;
 
 /**
  * Build an envelope.

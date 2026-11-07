@@ -245,6 +245,7 @@ export const DEFAULT_SETTINGS = {
 
 export const DEFAULT_PROFILE = {
   name: '',
+  username: '',
   status: 'Available',
   avatar: null,
   peerId: '',
