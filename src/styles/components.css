@@ -17,6 +17,11 @@
   to { opacity: 1; transform: none; }
 }
 
+.message-row.message-highlight .bubble {
+  box-shadow: 0 0 0 3px var(--accent);
+  transition: box-shadow 0.3s ease;
+}
+
 .message-row.is-out {
   flex-direction: row-reverse;
 }
@@ -312,9 +317,17 @@
 }
 
 .message-row:hover .message-actions,
-.message-row:focus-within .message-actions {
+.message-row:focus-within .message-actions,
+.message-row.is-active .message-actions {
   opacity: 1;
   transform: none;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .message-actions {
+    opacity: 0.7;
+    transform: none;
+  }
 }
 
 .message-action {

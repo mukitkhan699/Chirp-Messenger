@@ -40,9 +40,16 @@ export class MediaService {
         echoCancellation: true,
         noiseSuppression: true,
         autoGainControl: true,
+        sampleRate: 48000,
+        channelCount: 2,
       },
       video: video
-        ? { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }
+        ? {
+            width: { ideal: 1280, max: 1920 },
+            height: { ideal: 720, max: 1080 },
+            frameRate: { ideal: 30, max: 60 },
+            facingMode: 'user',
+          }
         : false,
     };
     this.localStream = await navigator.mediaDevices.getUserMedia(constraints);

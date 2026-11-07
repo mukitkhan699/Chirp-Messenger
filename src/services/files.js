@@ -10,10 +10,10 @@ import { MSG, chunkBytes, joinChunks } from './protocol.js';
 import { uid } from '../core/utils.js';
 
 /** Raw bytes per chunk (base64 grows this by ~4/3). */
-export const CHUNK_SIZE = 16 * 1024;
+export const CHUNK_SIZE = 32 * 1024;
 
-/** Files above this size are rejected. */
-export const MAX_FILE_BYTES = 12 * 1024 * 1024;
+/** Files above this size are rejected (supports larger files up to 64MB). */
+export const MAX_FILE_BYTES = 64 * 1024 * 1024;
 
 const yieldToUi = () => new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -47,7 +47,7 @@ export async function sendFile(peerService, peerId, file, { onProgress } = {}) {
     const ok = peerService.send(peerId, MSG.FILE_CHUNK, { fileId, index, data: chunks[index] });
     if (!ok) throw new Error('Connection lost while sending the file');
     onProgress?.((index + 1) / chunks.length);
-    if (index % 4 === 0) await yieldToUi();
+    if (index % 8 === 0) await yieldToUi();
   }
 
   return { fileId, name: file.name, size: file.size, type: file.type };
