@@ -1,0 +1,203 @@
+/* ==========================================================================
+   Design tokens
+   --------------------------------------------------------------------------
+   A single source of truth for colour, spacing, type and motion.
+   Themes are swapped by setting `data-theme` on <html>; accents by
+   `data-accent`. Everything else in the app reads from these variables.
+   ========================================================================== */
+
+:root {
+  /* --- type --- */
+  --font-sans: 'Inter var', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+
+  --text-2xs: 0.6875rem; /* 11px */
+  --text-xs: 0.75rem;    /* 12px */
+  --text-sm: 0.8125rem;  /* 13px */
+  --text-base: 0.9375rem;/* 15px */
+  --text-md: 1.0625rem;  /* 17px */
+  --text-lg: 1.375rem;   /* 22px */
+  --text-xl: 1.75rem;    /* 28px */
+  --text-2xl: 2.25rem;   /* 36px */
+
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.65;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* --- spacing (4px base) --- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  /* --- radii --- */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-full: 999px;
+
+  /* --- motion --- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-fast: 140ms;
+  --duration-base: 220ms;
+  --duration-slow: 380ms;
+
+  /* --- layout --- */
+  --sidebar-width: 344px;
+  --header-height: 68px;
+  --composer-height: 64px;
+
+  /* --- z-index scale --- */
+  --z-base: 1;
+  --z-sticky: 20;
+  --z-dropdown: 60;
+  --z-drawer: 80;
+  --z-modal: 100;
+  --z-toast: 120;
+
+  /* --- accent (overridden per theme / per accent choice) --- */
+  --accent-h: 243;
+  --accent-s: 75%;
+  --accent-l: 60%;
+
+  --accent: hsl(var(--accent-h) var(--accent-s) var(--accent-l));
+  --accent-hover: hsl(var(--accent-h) var(--accent-s) calc(var(--accent-l) + 6%));
+  --accent-press: hsl(var(--accent-h) var(--accent-s) calc(var(--accent-l) - 8%));
+  --accent-soft: hsl(var(--accent-h) var(--accent-s) var(--accent-l) / 0.14);
+  --accent-softer: hsl(var(--accent-h) var(--accent-s) var(--accent-l) / 0.07);
+  --accent-text: hsl(var(--accent-h) var(--accent-s) 72%);
+  --accent-contrast: #ffffff;
+
+  --success: hsl(152 62% 44%);
+  --warning: hsl(38 92% 55%);
+  --danger: hsl(354 78% 58%);
+  --info: hsl(199 89% 56%);
+}
+
+/* ---------------------------------------------------------------- dark */
+
+:root,
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: hsl(228 26% 7%);
+  --bg-deep: hsl(228 30% 5%);
+  --surface: hsl(227 22% 11%);
+  --surface-2: hsl(227 20% 14%);
+  --surface-3: hsl(227 19% 17%);
+  --surface-hover: hsl(227 18% 19%);
+  --surface-glass: hsl(227 22% 11% / 0.72);
+
+  --border: hsl(225 18% 100% / 0.08);
+  --border-strong: hsl(225 18% 100% / 0.14);
+  --border-subtle: hsl(225 18% 100% / 0.05);
+
+  --text: hsl(220 30% 96%);
+  --text-secondary: hsl(220 14% 72%);
+  --text-muted: hsl(220 12% 56%);
+  --text-faint: hsl(220 12% 42%);
+  --text-on-accent: #ffffff;
+
+  --shadow-sm: 0 1px 2px hsl(228 40% 2% / 0.4);
+  --shadow-md: 0 6px 20px hsl(228 40% 2% / 0.45);
+  --shadow-lg: 0 18px 48px hsl(228 40% 2% / 0.6);
+  --shadow-glow: 0 0 0 1px hsl(var(--accent-h) var(--accent-s) var(--accent-l) / 0.35),
+    0 8px 30px hsl(var(--accent-h) var(--accent-s) var(--accent-l) / 0.18);
+
+  --bubble-in: hsl(227 20% 15%);
+  --bubble-in-text: hsl(220 30% 96%);
+  --bubble-out: hsl(var(--accent-h) var(--accent-s) var(--accent-l));
+  --bubble-out-text: #ffffff;
+
+  --overlay: hsl(228 40% 3% / 0.72);
+  --skeleton: hsl(225 18% 100% / 0.06);
+}
+
+/* --------------------------------------------------------------- light */
+
+[data-theme='light'] {
+  color-scheme: light;
+
+  --bg: hsl(220 30% 96%);
+  --bg-deep: hsl(220 26% 93%);
+  --surface: hsl(0 0% 100%);
+  --surface-2: hsl(220 30% 98%);
+  --surface-3: hsl(220 28% 95%);
+  --surface-hover: hsl(220 28% 94%);
+  --surface-glass: hsl(0 0% 100% / 0.78);
+
+  --border: hsl(222 20% 12% / 0.1);
+  --border-strong: hsl(222 20% 12% / 0.16);
+  --border-subtle: hsl(222 20% 12% / 0.06);
+
+  --text: hsl(222 30% 14%);
+  --text-secondary: hsl(222 14% 38%);
+  --text-muted: hsl(222 10% 52%);
+  --text-faint: hsl(222 10% 66%);
+  --text-on-accent: #ffffff;
+
+  --shadow-sm: 0 1px 2px hsl(222 40% 20% / 0.08);
+  --shadow-md: 0 6px 20px hsl(222 40% 20% / 0.1);
+  --shadow-lg: 0 18px 48px hsl(222 40% 20% / 0.16);
+  --shadow-glow: 0 0 0 1px hsl(var(--accent-h) var(--accent-s) var(--accent-l) / 0.28),
+    0 8px 30px hsl(var(--accent-h) var(--accent-s) var(--accent-l) / 0.16);
+
+  --bubble-in: hsl(0 0% 100%);
+  --bubble-in-text: hsl(222 30% 14%);
+  --bubble-out: hsl(var(--accent-h) var(--accent-s) var(--accent-l));
+  --bubble-out-text: #ffffff;
+
+  --overlay: hsl(222 40% 30% / 0.42);
+  --skeleton: hsl(222 20% 12% / 0.06);
+
+  --accent-text: hsl(var(--accent-h) var(--accent-s) 44%);
+}
+
+/* ------------------------------------------------------------- accents */
+
+[data-accent='indigo'] { --accent-h: 243; --accent-s: 75%; --accent-l: 60%; }
+[data-accent='emerald'] { --accent-h: 158; --accent-s: 64%; --accent-l: 42%; }
+[data-accent='rose']   { --accent-h: 346; --accent-s: 77%; --accent-l: 58%; }
+[data-accent='amber']  { --accent-h: 36;  --accent-s: 92%; --accent-l: 52%; }
+[data-accent='cyan']   { --accent-h: 190; --accent-s: 85%; --accent-l: 45%; }
+[data-accent='violet'] { --accent-h: 268; --accent-s: 76%; --accent-l: 62%; }
+
+/* ------------------------------------------------------------ wallpapers */
+
+[data-wallpaper='aurora'] .chat-scroll {
+  background-image:
+    radial-gradient(60rem 40rem at 12% -10%, hsl(var(--accent-h) var(--accent-s) var(--accent-l) / 0.16), transparent 60%),
+    radial-gradient(50rem 36rem at 88% 8%, hsl(190 85% 55% / 0.12), transparent 62%),
+    radial-gradient(46rem 40rem at 55% 110%, hsl(268 80% 60% / 0.1), transparent 60%);
+}
+
+[data-wallpaper='grid'] .chat-scroll {
+  background-image:
+    linear-gradient(hsl(225 18% 100% / 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(225 18% 100% / 0.045) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+[data-wallpaper='paper'] .chat-scroll {
+  background-image: radial-gradient(hsl(225 18% 100% / 0.05) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+[data-wallpaper='none'] .chat-scroll {
+  background-image: none;
+}

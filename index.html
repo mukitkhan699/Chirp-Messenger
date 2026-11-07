@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-accent="indigo" data-wallpaper="aurora">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Chirp Messenger — peer-to-peer, private, modern</title>
+  <meta name="description" content="Chirp is a peer-to-peer messenger that runs entirely in the browser. No accounts, no server holding your messages — just modern chat, calls and end-to-end encryption.">
+  <meta name="theme-color" content="#0b0d12">
+  <meta name="color-scheme" content="dark light">
+
+  <!-- Social preview -->
+  <meta property="og:title" content="Chirp Messenger">
+  <meta property="og:description" content="A peer-to-peer messenger that runs entirely in the browser.">
+  <meta property="og:type" content="website">
+
+  <!-- Favicon: the lightning bolt mark, inline so there is no extra request -->
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/icon.svg">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Design system -->
+  <link rel="stylesheet" href="src/styles/tokens.css">
+  <link rel="stylesheet" href="src/styles/base.css">
+  <link rel="stylesheet" href="src/styles/layout.css">
+  <link rel="stylesheet" href="src/styles/components.css">
+
+  <!-- PeerJS is vendored locally so the app works without a third-party CDN -->
+  <script src="vendor/peerjs.min.js"></script>
+
+  <link rel="manifest" href="manifest.webmanifest">
+</head>
+<body>
+  <!-- The application is rendered by src/main.js -->
+  <div id="app" aria-busy="true">
+    <div class="boot-splash">
+      <div class="boot-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>
+        </svg>
+      </div>
+      <p>Starting Chirp…</p>
+    </div>
+  </div>
+
+  <noscript>
+    <div class="noscript">
+      <h1>Chirp needs JavaScript</h1>
+      <p>The whole messenger runs in your browser — please enable JavaScript to continue.</p>
+    </div>
+  </noscript>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

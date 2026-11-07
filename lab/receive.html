@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chirp · tone decoder</title>
+  <meta name="description" content="Decode audible tones back into text — the original Chirp Messenger experiment, rebuilt.">
+  <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="lab.css">
+</head>
+<body>
+  <main class="card">
+    <header class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>
+        </svg>
+      </span>
+      <h1>Tone decoder</h1>
+      <a class="back" href="../index.html">← Chirp</a>
+    </header>
+
+    <p class="lede">
+      Listen through your microphone and turn audible tones back into text.
+      Start the <a href="send.html" style="color:var(--accent)">tone sender</a>
+      on another device (or the same laptop with speakers on) and the message
+      appears here.
+    </p>
+
+    <div class="row">
+      <button class="primary" id="start">🎙 Start listening</button>
+      <button id="stop" disabled>■ Stop</button>
+      <span class="bars" id="bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+    </div>
+
+    <div class="status" id="status">Idle.</div>
+    <div class="out" id="out"></div>
+
+    <div class="legend">
+      <div><code>400 Hz</code> start marker · <code>500 Hz</code> end marker</div>
+      <div>Characters are <code>600 + charCode × 10</code> Hz (ASCII 32–126)</div>
+      <div>Analysis: 2048-point FFT, 50 ms poll, peak interpolation</div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { ChirpDecoder } from '../src/services/chirp.js';
+
+    const startButton = document.getElementById('start');
+    const stopButton = document.getElementById('stop');
+    const statusEl = document.getElementById('status');
+    const out = document.getElementById('out');
+    const bars = document.getElementById('bars');
+
+    let decoder = null;
+
+    startButton.addEventListener('click', async () => {
+      startButton.disabled = true;
+      stopButton.disabled = false;
+      bars.classList.add('on');
+      statusEl.classList.remove('is-error');
+      statusEl.textContent = 'Requesting microphone…';
+
+      decoder = new ChirpDecoder();
+
+      try {
+        await decoder.start({
+          onStatus: (status) => {
+            statusEl.classList.add('is-active');
+            statusEl.textContent = status;
+          },
+          onMessage: (text) => {
+            if (!text) {
+              statusEl.textContent = 'Empty message received.';
+              return;
+            }
+            out.textContent += `${text}\n`;
+            statusEl.textContent = `Decoded ${text.length} character${text.length === 1 ? '' : 's'}.`;
+          },
+        });
+      } catch (err) {
+        statusEl.classList.remove('is-active');
+        statusEl.classList.add('is-error');
+        statusEl.textContent = err.message || 'Could not access the microphone.';
+        bars.classList.remove('on');
+        startButton.disabled = false;
+        stopButton.disabled = true;
+      }
+    });
+
+    stopButton.addEventListener('click', () => {
+      decoder?.stop();
+      decoder = null;
+      bars.classList.remove('on');
+      startButton.disabled = false;
+      stopButton.disabled = true;
+      statusEl.classList.remove('is-active');
+      statusEl.textContent = 'Stopped.';
+    });
+  </script>
+</body>
+</html>

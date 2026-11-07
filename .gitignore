@@ -1,0 +1,7 @@
+# Test artefacts
+tests/screenshots/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp

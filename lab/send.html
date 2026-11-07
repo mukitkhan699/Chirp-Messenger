@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chirp · tone sender</title>
+  <meta name="description" content="Play a message as audible tones — the original Chirp Messenger experiment, rebuilt.">
+  <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="lab.css">
+</head>
+<body>
+  <main class="card">
+    <header class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>
+        </svg>
+      </span>
+      <h1>Tone sender</h1>
+      <a class="back" href="../index.html">← Chirp</a>
+    </header>
+
+    <p class="lede">
+      Type a message and play it out loud as a sequence of tones. Put a phone
+      near your microphone, or open the <a href="receive.html" style="color:var(--accent)">tone decoder</a>
+      on another device, and the text comes back.
+    </p>
+
+    <label for="text">Message</label>
+    <textarea id="text" rows="4" placeholder="Hello, world!"></textarea>
+
+    <div class="row">
+      <button class="primary" id="play">▶ Play tones</button>
+      <button id="stop" disabled>■ Stop</button>
+      <span class="bars" id="bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+    </div>
+
+    <div class="meter"><span id="meter"></span></div>
+    <div class="status" id="status">Ready.</div>
+
+    <div class="legend">
+      <div><code>400 Hz</code> start marker · <code>500 Hz</code> end marker</div>
+      <div>Characters are <code>600 + charCode × 10</code> Hz (ASCII 32–126)</div>
+      <div>Each tone lasts <code>200 ms</code> with a <code>220 ms</code> gap</div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { ChirpEncoder, chirpDurationMs } from '../src/services/chirp.js';
+
+    const input = document.getElementById('text');
+    const playButton = document.getElementById('play');
+    const stopButton = document.getElementById('stop');
+    const statusEl = document.getElementById('status');
+    const meter = document.getElementById('meter');
+    const bars = document.getElementById('bars');
+
+    const encoder = new ChirpEncoder();
+
+    playButton.addEventListener('click', async () => {
+      const text = input.value;
+      if (!text.trim()) {
+        statusEl.textContent = 'Type something first.';
+        statusEl.classList.add('is-error');
+        return;
+      }
+
+      playButton.disabled = true;
+      stopButton.disabled = false;
+      bars.classList.add('on');
+      statusEl.classList.remove('is-error');
+      statusEl.textContent = 'Playing…';
+
+      const result = await encoder.encode(text, {
+        onProgress: ({ index, total }) => {
+          meter.style.width = `${Math.round(((index + 1) / total) * 100)}%`;
+        },
+      });
+
+      bars.classList.remove('on');
+      playButton.disabled = false;
+      stopButton.disabled = true;
+      statusEl.classList.add('is-active');
+      statusEl.textContent =
+        `Played ${result.sent} tone${result.sent === 1 ? '' : 's'} in ${(result.durationMs / 1000).toFixed(1)}s.` +
+        (result.skipped ? ` (${result.skipped} character${result.skipped === 1 ? '' : 's'} skipped — non-ASCII)` : '');
+
+      input.addEventListener('input', () => {
+        statusEl.classList.remove('is-active');
+        statusEl.textContent = `Ready — about ${(chirpDurationMs(input.value) / 1000).toFixed(1)}s of tones.`;
+      }, { once: true });
+    });
+
+    stopButton.addEventListener('click', () => {
+      encoder.stop();
+      stopButton.disabled = true;
+      playButton.disabled = false;
+      bars.classList.remove('on');
+      statusEl.textContent = 'Stopped.';
+    });
+  </script>
+</body>
+</html>
